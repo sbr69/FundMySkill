@@ -51,20 +51,22 @@
   --color-secondary-container: #a0f399;
 
   /* Font Families */
-  --font-headline: "Manrope", sans-serif;
-  --font-body: "Inter", sans-serif;
-  --font-label: "Inter", sans-serif;
+  --font-headline: "Jura", sans-serif;
+  --font-body: "Inclusive Sans", sans-serif;
+  --font-label: "Inclusive Sans", sans-serif;
 }
 
 @layer base {
   body {
-    font-family: "Inter", sans-serif;
+    font-family: "Inclusive Sans", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, .font-headline {
-    font-family: "Manrope", sans-serif;
+    font-family: "Jura", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -99,5 +101,11 @@
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  button, .btn, .font-action, .font-silkscreen {
+    font-family: "Nova Flat", system-ui;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
 }

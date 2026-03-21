@@ -6,7 +6,7 @@ export function LandingPage() {
       {/* TopNavBar for Landing */}
       <nav className="fixed top-0 w-full z-50 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm dark:shadow-none font-headline antialiased flex items-center justify-between px-6 h-16">
         <div className="flex items-center gap-8">
-          <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Academic Atelier</span>
+          <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">FundMySkill</span>
           <div className="hidden md:flex gap-6">
             <a className="text-blue-700 dark:text-blue-400 font-semibold border-b-2 border-blue-700 dark:border-blue-400" href="#">Home</a>
             <a className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-all duration-200" href="#">Programs</a>
@@ -45,7 +45,7 @@ export function LandingPage() {
               Elevate Your Mind with <span className="text-primary">AI Precision.</span>
             </h1>
             <p className="text-on-surface-variant text-lg md:text-xl leading-relaxed mb-10 max-w-lg">
-              Academic Atelier combines centuries of pedagogical wisdom with cutting-edge artificial intelligence to create a curated, focus-driven workspace for the modern scholar.
+              FundMySkill combines centuries of pedagogical wisdom with cutting-edge artificial intelligence to create a curated, focus-driven workspace for the modern scholar.
             </p>
             {/* Bento-style feature highlights */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -152,7 +152,7 @@ export function LandingPage() {
           <p className="text-xs font-bold font-headline tracking-tight text-on-surface">Curated Insight</p>
         </div>
         <p className="text-sm italic font-body text-on-surface-variant leading-relaxed">
-          "The mind is not a vessel to be filled, but a fire to be kindled. AI is the spark we provide at the Atelier."
+          "The mind is not a vessel to be filled, but a fire to be kindled. AI is the spark we provide at the FundMySkill."
         </p>
         <p className="mt-3 text-[10px] font-bold text-outline uppercase tracking-widest">— Dr. Aris Thorne, Provost</p>
       </div>

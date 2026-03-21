@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { NetworkId, WalletId, WalletManager, WalletProvider } from '@txnlab/use-wallet-react';
 import { TopNavBar } from './components/layout/TopNavBar';
 import { SideNavBar } from './components/layout/SideNavBar';
-import { LandingPage } from './pages/LandingPage';
+import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CourseCataloguePage } from './pages/CourseCataloguePage';
 import { LearningInterfacePage } from './pages/LearningInterfacePage';
@@ -21,13 +22,13 @@ const walletManager = new WalletManager({
 
 function AppLayout() {
   const location = useLocation();
-  const isLandingPage = location.pathname === '/';
+  const isLandingPage = location.pathname === '/' || location.pathname === '/login';
   const isLessonView = location.pathname.startsWith('/learn');
   const isQuizView = location.pathname.startsWith('/quiz');
 
   // These pages have their own complete layout (nav, sidebar, etc.)
   const isStandalonePage = isLandingPage || isQuizView || location.pathname === '/donate';
-  
+
   // Lesson view has side nav + top nav but also a right chat panel
   const showSideNav = !isStandalonePage && !isLessonView;
   const showTopNav = !isStandalonePage;
@@ -36,7 +37,8 @@ function AppLayout() {
     return (
       <div className="min-h-screen bg-surface text-on-surface antialiased font-body">
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/donate" element={<DonationPage />} />
           <Route path="/quiz/:quizId" element={<CourseQuizPage />} />
         </Routes>
@@ -45,17 +47,16 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface antialiased font-body">
-      {showTopNav && <TopNavBar hasSearchBar={showSideNav} />}
+    <div className="min-h-screen bg-surface text-on-surface antialiased font-body relative">
       {showSideNav && <SideNavBar />}
-      
+
       {isLessonView ? (
         /* Learning interface has its own sidebar nav built into the page */
         <>
-          <aside className="hidden lg:flex h-screen w-64 fixed left-0 top-0 z-40 bg-slate-50 flex-col p-4 gap-2 pt-20">
+          <aside className="hidden lg:flex h-screen w-64 fixed left-0 top-0 z-40 bg-slate-50 flex-col p-4 gap-2 pt-8">
             <div className="px-4 mb-4">
               <div className="flex items-center gap-3 mb-1">
-                <span className="text-lg font-black text-blue-800">The Atelier</span>
+                <span className="text-lg font-black text-blue-800">FundMySkill</span>
               </div>
               <p className="text-xs text-slate-500 font-headline">Deep Work Mode</p>
             </div>
@@ -69,11 +70,10 @@ function AppLayout() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-transform duration-200 hover:translate-x-1 active:opacity-80 ${
-                    item.active
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-transform duration-200 hover:translate-x-1 active:opacity-80 ${item.active
                       ? 'bg-white text-blue-700 shadow-sm'
                       : 'text-slate-500 hover:bg-slate-100'
-                  }`}
+                    }`}
                 >
                   <span className="material-symbols-outlined">{item.icon}</span>
                   <span className="font-headline font-medium text-sm">{item.label}</span>
@@ -98,7 +98,7 @@ function AppLayout() {
           </main>
         </>
       ) : (
-        <main className={`${showSideNav ? 'pl-64' : ''} pt-16 min-h-screen`}>
+        <main className={`${showSideNav ? 'pl-64' : ''} min-h-screen`}>
           <Routes>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/courses" element={<CourseCataloguePage />} />

@@ -198,9 +198,7 @@ export function DonationPage() {
       {/* ── Top Header ─────────────────────────────────────────────── */}
       <nav className="fixed top-0 w-full z-50 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm dark:shadow-none h-16 flex items-center justify-between px-6">
         <div className="flex items-center gap-8">
-          <Link to="/" className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
-            Academic Atelier
-          </Link>
+          <Link to="/" className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">FundMySkill</Link>
         </div>
         <div className="flex items-center gap-4">
           {activeAddress ? (
@@ -290,35 +288,27 @@ export function DonationPage() {
                 favorite
               </span>
             </div>
-            <h1 className="font-headline text-3xl font-bold text-on-surface mb-2">Support the Atelier</h1>
-            <p className="text-on-surface-variant text-sm">
-              Empower AI-assisted learning with a stablecoin donation on Algorand.
-            </p>
-
-            {/* Live vault balance */}
-            {vaultBalance !== null && (
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
-                <span className="material-symbols-outlined text-primary text-sm">savings</span>
-                <span className="text-sm font-semibold text-primary">
-                  {vaultBalance} USDC in vault
-                </span>
-              </div>
-            )}
+            <h1 className="font-headline text-3xl font-bold text-on-surface mb-2">Support FundMySkill</h1>
+            <p className="text-on-surface-variant text-sm">Empower AI-assisted learning with a crypto donation.</p>
           </div>
 
-          <form className="space-y-6 relative z-10" onSubmit={(e) => e.preventDefault()}>
-            {/* Token (fixed to USDC on testnet) */}
-            <div>
-              <label className="block text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wide">
-                Network & Token
-              </label>
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-outline-variant bg-surface-container-low">
-                <div className="flex items-center gap-2 flex-1">
-                  <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-600 flex items-center justify-center text-xs font-bold">A</span>
-                  <span className="font-medium text-on-surface text-sm">Algorand Testnet</span>
+          <form className="space-y-6 relative z-10" onSubmit={e => e.preventDefault()}>
+
+            {/* Network & Token Info (hardcoded to Algorand Testnet / USDC) */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wide">Network</label>
+                <div className="h-12 px-4 flex items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low font-medium text-on-surface">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                  Algorand Testnet
                 </div>
-                <span className="text-on-surface-variant">·</span>
-                <span className="font-semibold text-primary text-sm">USDC</span>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wide">Token</label>
+                <div className="h-12 px-4 flex items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low font-medium text-on-surface">
+                  <span className="font-bold text-primary">USDC</span>
+                  <span className="text-xs text-on-surface-variant">(ASA #{USDC_ASA_ID})</span>
+                </div>
               </div>
             </div>
 

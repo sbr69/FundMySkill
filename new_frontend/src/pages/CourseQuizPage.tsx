@@ -16,7 +16,7 @@ export function CourseQuizPage() {
       {/* Top Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-sm font-headline antialiased flex items-center justify-between px-6 h-16">
         <div className="flex items-center gap-8">
-          <Link to="/dashboard" className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Academic Atelier</Link>
+          <Link to="/dashboard" className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">FundMySkill</Link>
           <div className="hidden md:flex gap-6 items-center">
             <Link className="text-slate-500 hover:text-slate-900 transition-all duration-200" to="/dashboard">Dashboard</Link>
             <Link className="text-blue-700 font-semibold border-b-2 border-blue-700 h-16 flex items-center" to="/courses">My Courses</Link>

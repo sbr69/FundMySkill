@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const courses = [
   {
@@ -83,20 +84,17 @@ export function CourseCataloguePage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState('Intermediate');
 
   return (
-    <div className="max-w-[1400px] mx-auto p-12">
+    <div className="max-w-7xl mx-auto px-8 py-12">
       {/* Hero / Title Section */}
-      <header className="mb-16 relative">
+      <header className="mb-16 relative flex flex-col md:flex-row justify-between items-start gap-8">
         <div className="flex flex-col gap-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold tracking-widest uppercase w-fit">
-            Explore Learning
-          </span>
           <h1 className="text-5xl font-extrabold text-on-surface tracking-tight leading-none font-headline">The Course Catalogue</h1>
           <p className="text-lg text-on-surface-variant max-w-2xl leading-relaxed">
             Curated experiences designed for deep cognitive mastery. Browse our collection of advanced academic modules.
           </p>
         </div>
-        {/* Offset decorative element */}
-        <div className="absolute -top-12 -right-8 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+        
+
       </header>
 
       <div className="flex gap-12 items-start">
