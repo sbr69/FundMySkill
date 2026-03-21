@@ -6,3 +6,8 @@ artifacts/
 .env
 .env.local
 .env.*.local
+
+# Deployer credentials (contains private keys!)
+.deployer.json
+*.deployer.json
+deployer.json

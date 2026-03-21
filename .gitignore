@@ -54,3 +54,11 @@ logs/
 skills/
 AGENTS.md
 .github/copilot-instructions.md
+
+# Algorand deployer credentials (contains private keys!)
+.deployer.json
+*.deployer.json
+deployer.json
+
+# Node modules (should never be committed)
+**/node_modules/
