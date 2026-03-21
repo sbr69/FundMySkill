@@ -49,3 +49,8 @@ htmlcov/
 # Logs
 *.log
 logs/
+
+# Agent skills and configuration (local development)
+skills/
+AGENTS.md
+.github/copilot-instructions.md

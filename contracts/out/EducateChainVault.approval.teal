@@ -1,0 +1,969 @@
+#pragma version 11
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    intcblock 0 1 8 32
+    bytecblock "total_donations" "accepted_asset_id" "admin" 0x151f7c75 "withdrawn_this_month" "treasury_wallet" 0x725f 0x65615f 0x65705f "bootstrapped" 0x65735f 0x0000000000000000
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // educatechain_vault.py:31-32
+    // # ── Global state ──────────────────────────────────────────────
+    // self.total_donations = UInt64(0)
+    bytec_0 // "total_donations"
+    intc_0 // 0
+    app_global_put
+    // educatechain_vault.py:33
+    // self.treasury_wallet = Account()
+    bytec 5 // "treasury_wallet"
+    global ZeroAddress
+    app_global_put
+    // educatechain_vault.py:34
+    // self.accepted_asset_id = UInt64(0)
+    bytec_1 // "accepted_asset_id"
+    intc_0 // 0
+    app_global_put
+    // educatechain_vault.py:35
+    // self.withdrawn_this_month = UInt64(0)
+    bytec 4 // "withdrawn_this_month"
+    intc_0 // 0
+    app_global_put
+    // educatechain_vault.py:36
+    // self.admin = Account()
+    bytec_2 // "admin"
+    global ZeroAddress
+    app_global_put
+    // educatechain_vault.py:37
+    // self.bootstrapped = UInt64(0)
+    bytec 9 // "bootstrapped"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // educatechain_vault.py:27
+    // class EducateChainVault(ARC4Contract):
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@22
+    pushbytess 0xbec76d87 0xdf54e8aa 0xb91779dc 0x94d393cb 0x4dd1b122 0x58a9f159 0xc7f0a582 0xfffddfc6 0xab01fc6c 0x919dff71 0x9fd6c978 0xf97baec9 0xe7a582bc 0x94441b63 0xacec2adf 0x03426154 // method "bootstrap()void", method "opt_in_to_asset(uint64)void", method "deposit_donation(axfer)void", method "request_course_payout(uint64,address,uint64)void", method "approve_course_payout(uint64,uint64)void", method "reject_course_payout(uint64)void", method "withdraw_monthly_oracle_amount(uint64,uint64)void", method "reset_monthly_counter()void", method "add_reviewer(address)void", method "remove_reviewer(address)void", method "get_total_donations()uint64", method "get_withdrawn_this_month()uint64", method "get_accepted_asset_id()uint64", method "get_course_escrow_amount(uint64)uint64", method "get_course_escrow_approved(uint64)uint64", method "is_reviewer(address)bool"
+    txna ApplicationArgs 0
+    match bootstrap opt_in_to_asset deposit_donation request_course_payout approve_course_payout reject_course_payout withdraw_monthly_oracle_amount reset_monthly_counter add_reviewer remove_reviewer get_total_donations get_withdrawn_this_month get_accepted_asset_id get_course_escrow_amount get_course_escrow_approved is_reviewer
+    err
+
+main_create_NoOp@22:
+    // educatechain_vault.py:27
+    // class EducateChainVault(ARC4Contract):
+    pushbytes 0xc0b64352 // method "create(address,uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// educatechain_vault.EducateChainVault.create[routing]() -> void:
+create:
+    // educatechain_vault.py:49
+    // @arc4.abimethod(create="require")
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // educatechain_vault.py:56
+    // self.treasury_wallet = treasury_wallet.native
+    bytec 5 // "treasury_wallet"
+    uncover 2
+    app_global_put
+    // educatechain_vault.py:57
+    // self.accepted_asset_id = accepted_asset_id.native
+    btoi
+    bytec_1 // "accepted_asset_id"
+    swap
+    app_global_put
+    // educatechain_vault.py:58
+    // self.admin = Txn.sender
+    bytec_2 // "admin"
+    txn Sender
+    app_global_put
+    // educatechain_vault.py:59
+    // log(b"VaultCreated")
+    pushbytes 0x5661756c7443726561746564
+    log
+    // educatechain_vault.py:49
+    // @arc4.abimethod(create="require")
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.bootstrap[routing]() -> void:
+bootstrap:
+    // educatechain_vault.py:66
+    // assert Txn.sender == self.admin, "Only admin"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // Only admin
+    // educatechain_vault.py:67
+    // assert self.bootstrapped == UInt64(0), "Already bootstrapped"
+    intc_0 // 0
+    bytec 9 // "bootstrapped"
+    app_global_get_ex
+    assert // check self.bootstrapped exists
+    !
+    assert // Already bootstrapped
+    // educatechain_vault.py:68
+    // self.reviewers[Txn.sender] = UInt64(1)
+    bytec 6 // 0x725f
+    txn Sender
+    concat
+    intc_1 // 1
+    itob
+    box_put
+    // educatechain_vault.py:69
+    // self.bootstrapped = UInt64(1)
+    bytec 9 // "bootstrapped"
+    intc_1 // 1
+    app_global_put
+    // educatechain_vault.py:70
+    // log(b"Bootstrapped")
+    pushbytes 0x426f6f747374726170706564
+    log
+    // educatechain_vault.py:61
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.opt_in_to_asset[routing]() -> void:
+opt_in_to_asset:
+    // educatechain_vault.py:74
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // educatechain_vault.py:77
+    // assert Txn.sender == self.admin, "Only admin can opt in to assets"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // Only admin can opt in to assets
+    // educatechain_vault.py:78
+    // assert asset.id == self.accepted_asset_id, "Asset does not match accepted ASA"
+    intc_0 // 0
+    bytec_1 // "accepted_asset_id"
+    app_global_get_ex
+    assert // check self.accepted_asset_id exists
+    dig 1
+    ==
+    assert // Asset does not match accepted ASA
+    // educatechain_vault.py:80-85
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=Global.current_application_address,
+    //     asset_amount=0,
+    //     fee=0,
+    // ).submit()
+    itxn_begin
+    // educatechain_vault.py:82
+    // asset_receiver=Global.current_application_address,
+    global CurrentApplicationAddress
+    // educatechain_vault.py:83
+    // asset_amount=0,
+    intc_0 // 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    // educatechain_vault.py:80
+    // itxn.AssetTransfer(
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    // educatechain_vault.py:84
+    // fee=0,
+    intc_0 // 0
+    itxn_field Fee
+    // educatechain_vault.py:80-85
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=Global.current_application_address,
+    //     asset_amount=0,
+    //     fee=0,
+    // ).submit()
+    itxn_submit
+    // educatechain_vault.py:86
+    // log(b"AssetOptedIn")
+    pushbytes 0x41737365744f70746564496e
+    log
+    // educatechain_vault.py:74
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.deposit_donation[routing]() -> void:
+deposit_donation:
+    // educatechain_vault.py:90
+    // @arc4.abimethod
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    pushint 4 // axfer
+    ==
+    assert // transaction type is axfer
+    // educatechain_vault.py:103
+    // assert payment.xfer_asset.id == self.accepted_asset_id, "Wrong ASA"
+    dup
+    gtxns XferAsset
+    intc_0 // 0
+    bytec_1 // "accepted_asset_id"
+    app_global_get_ex
+    assert // check self.accepted_asset_id exists
+    ==
+    assert // Wrong ASA
+    // educatechain_vault.py:105
+    // payment.asset_receiver == Global.current_application_address
+    dup
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    // educatechain_vault.py:104-106
+    // assert (
+    //     payment.asset_receiver == Global.current_application_address
+    // ), "Must send to contract"
+    assert // Must send to contract
+    // educatechain_vault.py:107
+    // assert payment.asset_amount > 0, "Must donate > 0"
+    gtxns AssetAmount
+    dup
+    assert // Must donate > 0
+    // educatechain_vault.py:109
+    // self.total_donations += payment.asset_amount
+    intc_0 // 0
+    bytec_0 // "total_donations"
+    app_global_get_ex
+    assert // check self.total_donations exists
+    +
+    bytec_0 // "total_donations"
+    swap
+    app_global_put
+    // educatechain_vault.py:110
+    // log(b"DonationReceived")
+    pushbytes 0x446f6e6174696f6e5265636569766564
+    log
+    // educatechain_vault.py:90
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.request_course_payout[routing]() -> void:
+request_course_payout:
+    // educatechain_vault.py:114
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // educatechain_vault.py:122
+    // cid = course_id.native
+    uncover 2
+    btoi
+    // educatechain_vault.py:123
+    // amt = amount.native
+    swap
+    btoi
+    // educatechain_vault.py:126
+    // assert amt > 0, "Amount must be > 0"
+    dup
+    assert // Amount must be > 0
+    // educatechain_vault.py:127
+    // assert amt <= self.total_donations, "Insufficient donated funds"
+    intc_0 // 0
+    bytec_0 // "total_donations"
+    app_global_get_ex
+    assert // check self.total_donations exists
+    dig 1
+    >=
+    assert // Insufficient donated funds
+    // educatechain_vault.py:128
+    // assert cid not in self.escrow_seller, "Course already pending"
+    swap
+    itob
+    bytec 10 // 0x65735f
+    dig 1
+    concat
+    dup
+    box_len
+    bury 1
+    !
+    assert // Course already pending
+    // educatechain_vault.py:130
+    // self.escrow_seller[cid] = seller
+    uncover 3
+    box_put
+    // educatechain_vault.py:131
+    // self.escrow_amount[cid] = amt
+    bytec 7 // 0x65615f
+    dig 1
+    concat
+    uncover 2
+    itob
+    box_put
+    // educatechain_vault.py:132
+    // self.escrow_approved[cid] = UInt64(0)  # 0 = pending
+    bytec 8 // 0x65705f
+    swap
+    concat
+    intc_0 // 0
+    itob
+    box_put
+    // educatechain_vault.py:133
+    // log(b"CoursePayoutRequested")
+    pushbytes 0x436f757273655061796f7574526571756573746564
+    log
+    // educatechain_vault.py:114
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.approve_course_payout[routing]() -> void:
+approve_course_payout:
+    // educatechain_vault.py:135
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // educatechain_vault.py:142
+    // cid = course_id.native
+    swap
+    btoi
+    // educatechain_vault.py:143
+    // assert self._is_reviewer(Txn.sender), "Only reviewers"
+    txn Sender
+    callsub _is_reviewer
+    assert // Only reviewers
+    // educatechain_vault.py:144
+    // assert cid in self.escrow_seller, "Escrow not found"
+    itob
+    bytec 10 // 0x65735f
+    dig 1
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Escrow not found
+    // educatechain_vault.py:145
+    // assert self.escrow_approved[cid] == UInt64(0), "Already processed"
+    bytec 8 // 0x65705f
+    dig 2
+    concat
+    dup
+    box_get
+    assert // check self.escrow_approved entry exists
+    btoi
+    !
+    assert // Already processed
+    // educatechain_vault.py:146
+    // assert asset.id == self.accepted_asset_id, "Wrong ASA"
+    intc_0 // 0
+    bytec_1 // "accepted_asset_id"
+    app_global_get_ex
+    assert // check self.accepted_asset_id exists
+    dig 4
+    ==
+    assert // Wrong ASA
+    // educatechain_vault.py:148
+    // seller = self.escrow_seller[cid]
+    swap
+    box_get
+    pop
+    // educatechain_vault.py:149
+    // amt = self.escrow_amount[cid]
+    bytec 7 // 0x65615f
+    uncover 3
+    concat
+    box_get
+    assert // check self.escrow_amount entry exists
+    btoi
+    // educatechain_vault.py:151-157
+    // # Send stablecoin to seller
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=seller,
+    //     asset_amount=amt,
+    //     fee=0,
+    // ).submit()
+    itxn_begin
+    dup
+    itxn_field AssetAmount
+    swap
+    itxn_field AssetReceiver
+    uncover 2
+    itxn_field XferAsset
+    // educatechain_vault.py:151-152
+    // # Send stablecoin to seller
+    // itxn.AssetTransfer(
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    // educatechain_vault.py:156
+    // fee=0,
+    intc_0 // 0
+    itxn_field Fee
+    // educatechain_vault.py:151-157
+    // # Send stablecoin to seller
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=seller,
+    //     asset_amount=amt,
+    //     fee=0,
+    // ).submit()
+    itxn_submit
+    // educatechain_vault.py:159
+    // self.escrow_approved[cid] = UInt64(1)  # 1 = approved & paid
+    intc_1 // 1
+    itob
+    uncover 2
+    swap
+    box_put
+    // educatechain_vault.py:160
+    // self.total_donations -= amt
+    intc_0 // 0
+    bytec_0 // "total_donations"
+    app_global_get_ex
+    assert // check self.total_donations exists
+    swap
+    -
+    bytec_0 // "total_donations"
+    swap
+    app_global_put
+    // educatechain_vault.py:161
+    // log(b"CourseApproved")
+    pushbytes 0x436f75727365417070726f766564
+    log
+    // educatechain_vault.py:135
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.reject_course_payout[routing]() -> void:
+reject_course_payout:
+    // educatechain_vault.py:163
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // educatechain_vault.py:166
+    // cid = course_id.native
+    btoi
+    // educatechain_vault.py:167
+    // assert self._is_reviewer(Txn.sender), "Only reviewers"
+    txn Sender
+    callsub _is_reviewer
+    assert // Only reviewers
+    // educatechain_vault.py:168
+    // assert cid in self.escrow_seller, "Escrow not found"
+    itob
+    bytec 10 // 0x65735f
+    dig 1
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Escrow not found
+    // educatechain_vault.py:170
+    // del self.escrow_seller[cid]
+    box_del
+    pop
+    // educatechain_vault.py:171
+    // del self.escrow_amount[cid]
+    bytec 7 // 0x65615f
+    dig 1
+    concat
+    box_del
+    pop
+    // educatechain_vault.py:172
+    // del self.escrow_approved[cid]
+    bytec 8 // 0x65705f
+    swap
+    concat
+    box_del
+    pop
+    // educatechain_vault.py:173
+    // log(b"CourseRejected")
+    pushbytes 0x436f7572736552656a6563746564
+    log
+    // educatechain_vault.py:163
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.withdraw_monthly_oracle_amount[routing]() -> void:
+withdraw_monthly_oracle_amount:
+    // educatechain_vault.py:177
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // educatechain_vault.py:184
+    // amt = amount_owed.native
+    swap
+    btoi
+    // educatechain_vault.py:185
+    // assert Txn.sender == self.treasury_wallet, "Only treasury"
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "treasury_wallet"
+    app_global_get_ex
+    assert // check self.treasury_wallet exists
+    swap
+    dig 1
+    ==
+    assert // Only treasury
+    // educatechain_vault.py:186
+    // assert amt <= self.total_donations, "Insufficient funds"
+    intc_0 // 0
+    bytec_0 // "total_donations"
+    app_global_get_ex
+    assert // check self.total_donations exists
+    dig 2
+    dig 1
+    <=
+    assert // Insufficient funds
+    // educatechain_vault.py:187
+    // assert asset.id == self.accepted_asset_id, "Wrong ASA"
+    intc_0 // 0
+    bytec_1 // "accepted_asset_id"
+    app_global_get_ex
+    assert // check self.accepted_asset_id exists
+    dig 4
+    ==
+    assert // Wrong ASA
+    // educatechain_vault.py:189-194
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=self.treasury_wallet,
+    //     asset_amount=amt,
+    //     fee=0,
+    // ).submit()
+    itxn_begin
+    dig 2
+    itxn_field AssetAmount
+    swap
+    itxn_field AssetReceiver
+    uncover 2
+    itxn_field XferAsset
+    // educatechain_vault.py:189
+    // itxn.AssetTransfer(
+    pushint 4 // axfer
+    itxn_field TypeEnum
+    // educatechain_vault.py:193
+    // fee=0,
+    intc_0 // 0
+    itxn_field Fee
+    // educatechain_vault.py:189-194
+    // itxn.AssetTransfer(
+    //     xfer_asset=asset,
+    //     asset_receiver=self.treasury_wallet,
+    //     asset_amount=amt,
+    //     fee=0,
+    // ).submit()
+    itxn_submit
+    // educatechain_vault.py:196
+    // self.total_donations -= amt
+    dig 1
+    -
+    bytec_0 // "total_donations"
+    swap
+    app_global_put
+    // educatechain_vault.py:197
+    // self.withdrawn_this_month += amt
+    intc_0 // 0
+    bytec 4 // "withdrawn_this_month"
+    app_global_get_ex
+    assert // check self.withdrawn_this_month exists
+    +
+    bytec 4 // "withdrawn_this_month"
+    swap
+    app_global_put
+    // educatechain_vault.py:198
+    // log(b"MonthlyWithdrawal")
+    pushbytes 0x4d6f6e74686c795769746864726177616c
+    log
+    // educatechain_vault.py:177
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.reset_monthly_counter[routing]() -> void:
+reset_monthly_counter:
+    // educatechain_vault.py:203
+    // assert Txn.sender == self.treasury_wallet, "Only treasury"
+    txn Sender
+    intc_0 // 0
+    bytec 5 // "treasury_wallet"
+    app_global_get_ex
+    assert // check self.treasury_wallet exists
+    ==
+    assert // Only treasury
+    // educatechain_vault.py:204
+    // self.withdrawn_this_month = UInt64(0)
+    bytec 4 // "withdrawn_this_month"
+    intc_0 // 0
+    app_global_put
+    // educatechain_vault.py:205
+    // log(b"MonthlyCounterReset")
+    pushbytes 0x4d6f6e74686c79436f756e7465725265736574
+    log
+    // educatechain_vault.py:200
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.add_reviewer[routing]() -> void:
+add_reviewer:
+    // educatechain_vault.py:209
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // educatechain_vault.py:212
+    // assert Txn.sender == self.admin, "Only admin"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // Only admin
+    // educatechain_vault.py:213
+    // self.reviewers[reviewer.native] = UInt64(1)
+    bytec 6 // 0x725f
+    swap
+    concat
+    intc_1 // 1
+    itob
+    box_put
+    // educatechain_vault.py:214
+    // log(b"ReviewerAdded")
+    pushbytes 0x52657669657765724164646564
+    log
+    // educatechain_vault.py:209
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.remove_reviewer[routing]() -> void:
+remove_reviewer:
+    // educatechain_vault.py:216
+    // @arc4.abimethod
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // educatechain_vault.py:219
+    // assert Txn.sender == self.admin, "Only admin"
+    txn Sender
+    intc_0 // 0
+    bytec_2 // "admin"
+    app_global_get_ex
+    assert // check self.admin exists
+    ==
+    assert // Only admin
+    // educatechain_vault.py:221
+    // assert addr in self.reviewers, "Not a reviewer"
+    bytec 6 // 0x725f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    assert // Not a reviewer
+    // educatechain_vault.py:222
+    // del self.reviewers[addr]
+    box_del
+    pop
+    // educatechain_vault.py:223
+    // log(b"ReviewerRemoved")
+    pushbytes 0x526576696577657252656d6f766564
+    log
+    // educatechain_vault.py:216
+    // @arc4.abimethod
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.get_total_donations[routing]() -> void:
+get_total_donations:
+    // educatechain_vault.py:230
+    // return arc4.UInt64(self.total_donations)
+    intc_0 // 0
+    bytec_0 // "total_donations"
+    app_global_get_ex
+    assert // check self.total_donations exists
+    itob
+    // educatechain_vault.py:227
+    // @arc4.abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.get_withdrawn_this_month[routing]() -> void:
+get_withdrawn_this_month:
+    // educatechain_vault.py:235
+    // return arc4.UInt64(self.withdrawn_this_month)
+    intc_0 // 0
+    bytec 4 // "withdrawn_this_month"
+    app_global_get_ex
+    assert // check self.withdrawn_this_month exists
+    itob
+    // educatechain_vault.py:232
+    // @arc4.abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.get_accepted_asset_id[routing]() -> void:
+get_accepted_asset_id:
+    // educatechain_vault.py:240
+    // return arc4.UInt64(self.accepted_asset_id)
+    intc_0 // 0
+    bytec_1 // "accepted_asset_id"
+    app_global_get_ex
+    assert // check self.accepted_asset_id exists
+    itob
+    // educatechain_vault.py:237
+    // @arc4.abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault.get_course_escrow_amount[routing]() -> void:
+get_course_escrow_amount:
+    // educatechain_vault.py:242
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // educatechain_vault.py:245
+    // cid = course_id.native
+    btoi
+    // educatechain_vault.py:246
+    // if cid in self.escrow_amount:
+    itob
+    bytec 7 // 0x65615f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    bz get_course_escrow_amount_after_if_else@3
+    // educatechain_vault.py:247
+    // return arc4.UInt64(self.escrow_amount[cid])
+    dup
+    box_get
+    assert // check self.escrow_amount entry exists
+    btoi
+    itob
+
+get_course_escrow_amount_after_inlined_educatechain_vault.EducateChainVault.get_course_escrow_amount@4:
+    // educatechain_vault.py:242
+    // @arc4.abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+get_course_escrow_amount_after_if_else@3:
+    // educatechain_vault.py:248
+    // return arc4.UInt64(0)
+    bytec 11 // 0x0000000000000000
+    // educatechain_vault.py:242
+    // @arc4.abimethod(readonly=True)
+    b get_course_escrow_amount_after_inlined_educatechain_vault.EducateChainVault.get_course_escrow_amount@4
+
+
+// educatechain_vault.EducateChainVault.get_course_escrow_approved[routing]() -> void:
+get_course_escrow_approved:
+    // educatechain_vault.py:250
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // educatechain_vault.py:253
+    // cid = course_id.native
+    btoi
+    // educatechain_vault.py:254
+    // if cid in self.escrow_approved:
+    itob
+    bytec 8 // 0x65705f
+    swap
+    concat
+    dup
+    box_len
+    bury 1
+    bz get_course_escrow_approved_after_if_else@3
+    // educatechain_vault.py:255
+    // return arc4.UInt64(self.escrow_approved[cid])
+    dup
+    box_get
+    assert // check self.escrow_approved entry exists
+    btoi
+    itob
+
+get_course_escrow_approved_after_inlined_educatechain_vault.EducateChainVault.get_course_escrow_approved@4:
+    // educatechain_vault.py:250
+    // @arc4.abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+get_course_escrow_approved_after_if_else@3:
+    // educatechain_vault.py:256
+    // return arc4.UInt64(0)
+    bytec 11 // 0x0000000000000000
+    // educatechain_vault.py:250
+    // @arc4.abimethod(readonly=True)
+    b get_course_escrow_approved_after_inlined_educatechain_vault.EducateChainVault.get_course_escrow_approved@4
+
+
+// educatechain_vault.EducateChainVault.is_reviewer[routing]() -> void:
+is_reviewer:
+    // educatechain_vault.py:258
+    // @arc4.abimethod(readonly=True)
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // educatechain_vault.py:261
+    // return arc4.Bool(self._is_reviewer(address.native))
+    callsub _is_reviewer
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // educatechain_vault.py:258
+    // @arc4.abimethod(readonly=True)
+    bytec_3 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// educatechain_vault.EducateChainVault._is_reviewer(address: bytes) -> uint64:
+_is_reviewer:
+    // educatechain_vault.py:265-266
+    // @subroutine
+    // def _is_reviewer(self, address: Account) -> bool:
+    proto 1 1
+    // educatechain_vault.py:268
+    // if address in self.reviewers:
+    bytec 6 // 0x725f
+    frame_dig -1
+    concat
+    box_len
+    bury 1
+    bz _is_reviewer_after_if_else@2
+    // educatechain_vault.py:269
+    // return True
+    intc_1 // 1
+    retsub
+
+_is_reviewer_after_if_else@2:
+    // educatechain_vault.py:270
+    // return False
+    intc_0 // 0
+    retsub

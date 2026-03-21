@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { NetworkId, WalletId, WalletManager, WalletProvider } from '@txnlab/use-wallet-react';
 import { TopNavBar } from './components/layout/TopNavBar';
 import { SideNavBar } from './components/layout/SideNavBar';
 import { LandingPage } from './pages/LandingPage';
@@ -8,6 +9,15 @@ import { LearningInterfacePage } from './pages/LearningInterfacePage';
 import { CourseQuizPage } from './pages/CourseQuizPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { DonationPage } from './pages/DonationPage';
+
+// ── Wallet Manager ──────────────────────────────────────────────────
+const walletManager = new WalletManager({
+  wallets: [
+    WalletId.PERA,
+    WalletId.LUTE,
+  ],
+  defaultNetwork: NetworkId.TESTNET,
+});
 
 function AppLayout() {
   const location = useLocation();
@@ -102,8 +112,10 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <Router>
-      <AppLayout />
-    </Router>
+    <WalletProvider manager={walletManager}>
+      <Router>
+        <AppLayout />
+      </Router>
+    </WalletProvider>
   );
 }

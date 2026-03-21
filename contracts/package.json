@@ -1,0 +1,17 @@
+{
+  "name": "educatechain-contracts",
+  "version": "1.0.0",
+  "description": "EducateChain vault smart contract for Algorand",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Use: puyac contracts/*.algo.ts'",
+    "test": "echo 'Run tests with: algokit project run test'",
+    "dev": "echo 'Development setup'"
+  },
+  "devDependencies": {
+    "@algorandfoundation/algokit-utils": "^9.2.0",
+    "@algorandfoundation/algorand-typescript": "^1.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0"
+  }
+}
