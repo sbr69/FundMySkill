@@ -1,16 +1,27 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '@txnlab/use-wallet-react';
 import algosdk from 'algosdk';
+import LuteConnect from 'lute-connect';
 
 // ── Contract config ──────────────────────────────────────────────────
-// UPDATE THIS after running deploy_testnet.py
 const VAULT_APP_ID = 757485914; // Deployed on Algorand testnet
 const USDC_ASA_ID = 10458941; // USDC on Algorand testnet
 const USDC_DECIMALS = 6;
+const ALGO_DECIMALS = 6;
 
 const ALGOD_URL = 'https://testnet-api.algonode.cloud';
 const ALGOD_TOKEN = '';
+
+// Token options
+type TokenType = 'ALGO' | 'USDC';
+
+// Shared Lute instance for signing
+const luteClient = new LuteConnect('FundMySkill');
+luteClient.forceWeb = true;
+
+// LocalStorage key for persisting Lute address
+const LUTE_ADDRESS_KEY = 'fundmyskill_lute_address';
 
 function getAlgodClient() {
   return new algosdk.Algodv2(ALGOD_TOKEN, ALGOD_URL, '');
@@ -20,12 +31,54 @@ function getAppAddress(): string {
   return algosdk.getApplicationAddress(VAULT_APP_ID).toString();
 }
 
+// Helper: Uint8Array to base64
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+// Helper: base64 to Uint8Array
+function base64ToUint8Array(b64: string): Uint8Array {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 export function DonationPage() {
   // ── Wallet state ───────────────────────────────────────────────────
-  const { wallets, activeAddress, transactionSigner, activeWallet } = useWallet();
+  const { wallets, activeAddress: useWalletAddress, transactionSigner: useWalletSigner, activeWallet } = useWallet();
+
+  // Lute direct connection state (fallback when extension doesn't work)
+  const [luteAddress, setLuteAddress] = useState<string | null>(() => {
+    // Restore from localStorage on initial load
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(LUTE_ADDRESS_KEY);
+    }
+    return null;
+  });
+  const connectingRef = useRef(false);
+
+  // Persist luteAddress to localStorage
+  useEffect(() => {
+    if (luteAddress) {
+      localStorage.setItem(LUTE_ADDRESS_KEY, luteAddress);
+    } else {
+      localStorage.removeItem(LUTE_ADDRESS_KEY);
+    }
+  }, [luteAddress]);
+
+  // Use either use-wallet address or direct lute address
+  const activeAddress = useWalletAddress || luteAddress;
 
   // ── UI state ───────────────────────────────────────────────────────
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [selectedToken, setSelectedToken] = useState<TokenType>('ALGO');
   const [fiatCurrency, setFiatCurrency] = useState('USD');
   const [fiatAmount, setFiatAmount] = useState('');
   const [cryptoAmount, setCryptoAmount] = useState('');
@@ -34,8 +87,9 @@ export function DonationPage() {
   const [txError, setTxError] = useState('');
   const [vaultBalance, setVaultBalance] = useState<string | null>(null);
 
-  // Exchange rates (stablecoins pegged 1:1 to USD)
+  // Exchange rates (USDC pegged 1:1 to USD, ALGO approximate rate)
   const rates: Record<string, number> = { USD: 1, INR: 83.5 };
+  const algoUsdRate = 0.35; // Approximate ALGO/USD rate
 
   // ── Fiat → Crypto conversion ───────────────────────────────────────
   useEffect(() => {
@@ -46,11 +100,17 @@ export function DonationPage() {
     const num = parseFloat(fiatAmount);
     if (!isNaN(num) && num >= 0) {
       const usdValue = num / (rates[fiatCurrency] || 1);
-      setCryptoAmount(usdValue.toFixed(USDC_DECIMALS > 4 ? 4 : USDC_DECIMALS));
+      if (selectedToken === 'USDC') {
+        setCryptoAmount(usdValue.toFixed(4));
+      } else {
+        // Convert USD to ALGO
+        const algoAmount = usdValue / algoUsdRate;
+        setCryptoAmount(algoAmount.toFixed(4));
+      }
     } else {
       setCryptoAmount('');
     }
-  }, [fiatAmount, fiatCurrency]);
+  }, [fiatAmount, fiatCurrency, selectedToken]);
 
   // ── Fetch vault USDC balance ───────────────────────────────────────
   const fetchVaultBalance = useCallback(async () => {
@@ -85,33 +145,72 @@ export function DonationPage() {
 
   // ── Wallet connect ─────────────────────────────────────────────────
   const handleConnect = async (walletId: string) => {
+    // Prevent double execution from React StrictMode
+    if (connectingRef.current) return;
+    connectingRef.current = true;
+
     const wallet = wallets.find((w) => w.id === walletId);
+
+    if (walletId === 'lute') {
+      // Use direct lute-connect with web popup (extension has issues)
+      try {
+        const accounts = await luteClient.connect('testnet-v1.0');
+        if (accounts && accounts.length > 0) {
+          setLuteAddress(accounts[0]);
+          setShowWalletModal(false);
+        }
+      } catch (err) {
+        console.error('Lute connect error:', err);
+        setTxError(`Failed to connect Lute: ${err instanceof Error ? err.message : String(err)}`);
+        setTxStatus('error');
+        setShowWalletModal(false);
+      } finally {
+        connectingRef.current = false;
+      }
+      return;
+    }
+
+    // For other wallets (Pera), use use-wallet
     if (wallet) {
       try {
         await wallet.connect();
         setShowWalletModal(false);
       } catch (err) {
         console.error('Wallet connect error:', err);
+        setTxError(`Failed to connect ${wallet.metadata.name}: ${err instanceof Error ? err.message : String(err)}`);
+        setTxStatus('error');
+        setShowWalletModal(false);
       }
     }
+    connectingRef.current = false;
   };
 
   const handleDisconnect = async () => {
     if (activeWallet) {
       await activeWallet.disconnect();
     }
+    // Clear direct Lute connection
+    setLuteAddress(null);
   };
 
   // ── Donation transaction ───────────────────────────────────────────
   const handleDonate = async () => {
-    if (!activeAddress || !transactionSigner) {
+    if (!activeAddress) {
       setTxError('Please connect your wallet first');
       setTxStatus('error');
       return;
     }
 
-    const donationUsdc = parseFloat(cryptoAmount);
-    if (isNaN(donationUsdc) || donationUsdc <= 0) {
+    // Check if we have a way to sign (either use-wallet or direct Lute)
+    const isDirectLute = !!luteAddress;
+    if (!isDirectLute && !useWalletSigner) {
+      setTxError('Please connect your wallet first');
+      setTxStatus('error');
+      return;
+    }
+
+    const donationAmount = parseFloat(cryptoAmount);
+    if (isNaN(donationAmount) || donationAmount <= 0) {
       setTxError('Enter a valid donation amount');
       setTxStatus('error');
       return;
@@ -126,46 +225,111 @@ export function DonationPage() {
       const params = await client.getTransactionParams().do();
       const appAddr = getAppAddress();
 
-      // Amount in micro-units (USDC has 6 decimals)
-      const microAmount = Math.floor(donationUsdc * Math.pow(10, USDC_DECIMALS));
+      let signedTxns: Uint8Array[];
 
-      // Transaction 1: ASA transfer (USDC → contract)
-      const assetTransferTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-        sender: activeAddress,
-        receiver: appAddr,
-        amount: microAmount,
-        assetIndex: USDC_ASA_ID,
-        suggestedParams: params,
-      });
+      if (selectedToken === 'ALGO') {
+        // Simple ALGO payment transaction
+        const microAlgos = Math.floor(donationAmount * Math.pow(10, ALGO_DECIMALS));
 
-      // Transaction 2: App call (deposit_donation)
-      // ABI method selector for "deposit_donation(axfer)void"
-      const depositSelector = new Uint8Array(
-        algosdk.ABIMethod.fromSignature('deposit_donation(axfer)void').getSelector()
-      );
+        const paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+          sender: activeAddress,
+          receiver: appAddr,
+          amount: microAlgos,
+          suggestedParams: params,
+        });
 
-      const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
-        sender: activeAddress,
-        appIndex: VAULT_APP_ID,
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-        appArgs: [depositSelector],
-        foreignAssets: [USDC_ASA_ID],
-        suggestedParams: params,
-      });
+        if (isDirectLute) {
+          // Sign with Lute - use WalletTransaction format (ARC-0001)
+          const txnB64 = uint8ArrayToBase64(paymentTxn.toByte());
+          const walletTxns = [{ txn: txnB64 }];
+          console.log('Sending to Lute:', walletTxns);
+          const signedResult = await luteClient.signTxns(walletTxns);
+          console.log('Lute response:', signedResult);
+          // Handle response
+          signedTxns = signedResult.map((item: string | { blob: string } | Uint8Array | null) => {
+            if (item === null) {
+              throw new Error('Transaction was not signed');
+            }
+            if (item instanceof Uint8Array) {
+              return item;
+            } else if (typeof item === 'string') {
+              return base64ToUint8Array(item);
+            } else if (item && typeof item === 'object' && 'blob' in item) {
+              return base64ToUint8Array(item.blob);
+            }
+            throw new Error('Unexpected signed transaction format');
+          });
+        } else {
+          // Sign with use-wallet
+          signedTxns = await useWalletSigner!(
+            [paymentTxn],
+            [0]
+          );
+        }
+      } else {
+        // USDC donation with app call
+        const microAmount = Math.floor(donationAmount * Math.pow(10, USDC_DECIMALS));
 
-      // Group them atomically
-      algosdk.assignGroupID([assetTransferTxn, appCallTxn]);
+        // Transaction 1: ASA transfer (USDC → contract)
+        const assetTransferTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+          sender: activeAddress,
+          receiver: appAddr,
+          amount: microAmount,
+          assetIndex: USDC_ASA_ID,
+          suggestedParams: params,
+        });
 
-      // Sign with wallet
-      const encodedTxns = [assetTransferTxn, appCallTxn].map((txn) => txn.toByte());
+        // Transaction 2: App call (deposit_donation)
+        const depositSelector = new Uint8Array(
+          algosdk.ABIMethod.fromSignature('deposit_donation(axfer)void').getSelector()
+        );
 
-      const signedTxns = await transactionSigner(
-        encodedTxns.map((t) => algosdk.decodeUnsignedTransaction(t)),
-        [0, 1]
-      );
+        const appCallTxn = algosdk.makeApplicationCallTxnFromObject({
+          sender: activeAddress,
+          appIndex: VAULT_APP_ID,
+          onComplete: algosdk.OnApplicationComplete.NoOpOC,
+          appArgs: [depositSelector],
+          foreignAssets: [USDC_ASA_ID],
+          suggestedParams: params,
+        });
+
+        // Group them atomically
+        algosdk.assignGroupID([assetTransferTxn, appCallTxn]);
+
+        if (isDirectLute) {
+          // Sign with Lute - use WalletTransaction format (ARC-0001)
+          const walletTxns = [assetTransferTxn, appCallTxn].map(txn => ({
+            txn: uint8ArrayToBase64(txn.toByte())
+          }));
+          console.log('Sending to Lute:', walletTxns);
+          const signedResult = await luteClient.signTxns(walletTxns);
+          console.log('Lute response:', signedResult);
+          // Handle response
+          signedTxns = signedResult.map((item: string | { blob: string } | Uint8Array | null) => {
+            if (item === null) {
+              throw new Error('Transaction was not signed');
+            }
+            if (item instanceof Uint8Array) {
+              return item;
+            } else if (typeof item === 'string') {
+              return base64ToUint8Array(item);
+            } else if (item && typeof item === 'object' && 'blob' in item) {
+              return base64ToUint8Array(item.blob);
+            }
+            throw new Error('Unexpected signed transaction format');
+          });
+        } else {
+          // Sign with use-wallet
+          const encodedTxns = [assetTransferTxn, appCallTxn].map((txn) => txn.toByte());
+          signedTxns = await useWalletSigner!(
+            encodedTxns.map((t) => algosdk.decodeUnsignedTransaction(t)),
+            [0, 1]
+          );
+        }
+      }
 
       // Submit
-      const { txid } = await client.sendRawTransaction(signedTxns.map((s) => s)).do();
+      const { txid } = await client.sendRawTransaction(signedTxns).do();
       await algosdk.waitForConfirmation(client, txid, 4);
 
       setTxId(txid);
@@ -176,19 +340,19 @@ export function DonationPage() {
       console.error('Donation error:', err);
       const message = err instanceof Error ? err.message : String(err);
       // Make user-friendly error messages
-      if (message.includes('User') || message.includes('rejected') || message.includes('cancelled')) {
+      if (message.includes('User') || message.includes('rejected') || message.includes('cancelled') || message.includes('Rejected')) {
         setTxError('Transaction was cancelled in your wallet.');
       } else if (message.includes('underflow') || message.includes('below min')) {
-        setTxError('Insufficient USDC balance in your wallet.');
+        setTxError(`Insufficient ${selectedToken} balance in your wallet.`);
       } else {
-        setTxError(message.length > 120 ? message.slice(0, 120) + '…' : message);
+        setTxError(message.length > 120 ? message.slice(0, 120) + '...' : message);
       }
       setTxStatus('error');
     }
   };
 
   const shortAddr = activeAddress
-    ? `${activeAddress.slice(0, 6)}…${activeAddress.slice(-4)}`
+    ? `${activeAddress.slice(0, 6)}...${activeAddress.slice(-4)}`
     : '';
 
   const canDonate = !!activeAddress && !!parseFloat(cryptoAmount) && txStatus !== 'pending';
@@ -294,7 +458,7 @@ export function DonationPage() {
 
           <form className="space-y-6 relative z-10" onSubmit={e => e.preventDefault()}>
 
-            {/* Network & Token Info (hardcoded to Algorand Testnet / USDC) */}
+            {/* Network & Token Selection */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wide">Network</label>
@@ -305,10 +469,14 @@ export function DonationPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wide">Token</label>
-                <div className="h-12 px-4 flex items-center gap-2 rounded-xl border border-outline-variant bg-surface-container-low font-medium text-on-surface">
-                  <span className="font-bold text-primary">USDC</span>
-                  <span className="text-xs text-on-surface-variant">(ASA #{USDC_ASA_ID})</span>
-                </div>
+                <select
+                  value={selectedToken}
+                  onChange={(e) => setSelectedToken(e.target.value as TokenType)}
+                  className="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
+                >
+                  <option value="ALGO">ALGO</option>
+                  <option value="USDC">USDC (ASA)</option>
+                </select>
               </div>
             </div>
 
@@ -323,7 +491,7 @@ export function DonationPage() {
                 {/* Fiat Input */}
                 <div className="flex-1 relative">
                   <div className="absolute left-3 top-3 text-outline font-bold">
-                    {fiatCurrency === 'USD' ? '$' : '₹'}
+                    {fiatCurrency === 'USD' ? '$' : '\u20B9'}
                   </div>
                   <input
                     type="number"
@@ -361,10 +529,15 @@ export function DonationPage() {
                     className="w-full h-12 px-4 pr-16 rounded-xl border border-transparent bg-surface-container-high text-on-surface font-bold text-lg flex items-center cursor-not-allowed opacity-90"
                   />
                   <div className="absolute right-4 top-3 text-sm font-semibold text-primary">
-                    USDC
+                    {selectedToken}
                   </div>
                 </div>
               </div>
+              {selectedToken === 'ALGO' && (
+                <p className="text-xs text-on-surface-variant mt-2">
+                  Rate: 1 ALGO ≈ ${algoUsdRate.toFixed(2)} USD (approximate)
+                </p>
+              )}
             </div>
 
             {/* Donate Button */}
@@ -379,14 +552,14 @@ export function DonationPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Signing & Submitting…
+                  Signing & Submitting...
                 </>
               ) : (
                 <>
                   <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
                     volunteer_activism
                   </span>
-                  Complete Donation
+                  Donate {selectedToken}
                 </>
               )}
             </button>
@@ -408,7 +581,7 @@ export function DonationPage() {
                     rel="noopener noreferrer"
                     className="underline hover:text-green-900"
                   >
-                    {txId.slice(0, 12)}…{txId.slice(-8)}
+                    {txId.slice(0, 12)}...{txId.slice(-8)}
                   </a>
                 </p>
               </div>

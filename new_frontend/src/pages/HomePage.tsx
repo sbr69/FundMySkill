@@ -224,6 +224,12 @@ export function HomePage() {
                   Make a Donation
                 </Link>
               </div>
+              <div className="mt-10 flex justify-center w-full">
+                <Link to="/upload-course" className="group flex items-center gap-2 text-white/90 hover:text-white transition-all text-sm font-bold tracking-widest uppercase font-headline">
+                  <span className="border-b-2 border-white/30 group-hover:border-white transition-colors pb-1">List your course on our platform</span>
+                  <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </Link>
+              </div>
             </div>
           </div>
         </section>

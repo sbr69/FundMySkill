@@ -12,12 +12,18 @@ import { ProfilePage } from './pages/ProfilePage';
 import { DonationPage } from './pages/DonationPage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
 import { CourseOverviewPage } from './pages/CourseOverviewPage';
+import { CourseUploadPage } from './pages/CourseUploadPage';
 
 // ── Wallet Manager ──────────────────────────────────────────────────
 const walletManager = new WalletManager({
   wallets: [
     WalletId.PERA,
-    WalletId.LUTE,
+    {
+      id: WalletId.LUTE,
+      options: {
+        siteName: 'FundMySkill'
+      }
+    }
   ],
   defaultNetwork: NetworkId.TESTNET,
 });
@@ -29,7 +35,7 @@ function AppLayout() {
   const isQuizView = location.pathname.startsWith('/quiz');
 
   // These pages have their own complete layout (nav, sidebar, etc.)
-  const isStandalonePage = isLandingPage || isQuizView || location.pathname === '/donate';
+  const isStandalonePage = isLandingPage || isQuizView || location.pathname === '/donate' || location.pathname === '/upload-course';
 
   // Lesson view has side nav + top nav but also a right chat panel
   const showSideNav = !isStandalonePage && !isLessonView;
@@ -43,6 +49,7 @@ function AppLayout() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/donate" element={<DonationPage />} />
           <Route path="/quiz/:quizId" element={<CourseQuizPage />} />
+          <Route path="/upload-course" element={<CourseUploadPage />} />
         </Routes>
       </div>
     );
@@ -73,8 +80,8 @@ function AppLayout() {
                 <div
                   key={item.label}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-transform duration-200 hover:translate-x-1 active:opacity-80 ${item.active
-                      ? 'bg-white text-blue-700 shadow-sm'
-                      : 'text-slate-500 hover:bg-slate-100'
+                    ? 'bg-white text-blue-700 shadow-sm'
+                    : 'text-slate-500 hover:bg-slate-100'
                     }`}
                 >
                   <span className="material-symbols-outlined">{item.icon}</span>
