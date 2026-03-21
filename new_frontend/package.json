@@ -21,6 +21,10 @@
     "react-router-dom": "^7.13.1",
     "tailwindcss": "^4.2.2"
   },
+  "overrides": {
+    "bn.js": "^4.12.3",
+    "ws": "^8.18.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@types/node": "^24.12.0",
