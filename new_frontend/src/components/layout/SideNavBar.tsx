@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
   { icon: 'dashboard', label: 'Dashboard', path: '/dashboard' },
+  { icon: 'person_edit', label: 'Your Courses', path: '/my-courses' },
   { icon: 'auto_stories', label: 'Explore Courses', path: '/courses' },
   { icon: 'settings', label: 'Settings', path: '#' },
 ];
@@ -10,8 +11,9 @@ export function SideNavBar() {
   const location = useLocation();
 
   const isActive = (path: string) => {
-    if (path === '/dashboard') return location.pathname === '/dashboard';
+    if (path === '/dashboard') return location.pathname === '/dashboard' || location.pathname === path;
     if (path === '/courses') return location.pathname === '/courses';
+    if (path === '/my-courses') return location.pathname === '/my-courses';
     return false;
   };
 
@@ -24,7 +26,6 @@ export function SideNavBar() {
           </div>
           <div>
             <h2 className="text-xl font-black text-[#2e3440] leading-none tracking-tight font-headline">FundMySkill</h2>
-            <p className="text-[11px] uppercase tracking-[0.25em] text-[#3b4252] font-black mt-1">Deep Work</p>
           </div>
         </div>
       </div>
@@ -41,7 +42,7 @@ export function SideNavBar() {
             }`}
           >
             <span className={`material-symbols-outlined text-[1.3rem] ${isActive(item.path) ? 'font-bold' : ''}`}>{item.icon}</span>
-            <span className="font-headline font-black text-[12px] uppercase tracking-[0.1em]">{item.label}</span>
+            <span className="font-body font-bold text-[12px] uppercase tracking-[0.14em]">{item.label}</span>
           </Link>
         ))}
       </nav>
@@ -57,20 +58,20 @@ export function SideNavBar() {
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-s4tYwpbzLXg2tdVUn-MlZOvhACmJmBsEqb0-H6mz5DOSVnQ5f6GezjyX_0s4pzsczwR6j5IJmoL7SFlex3XzC-iqkjrelAFU5taR_tdR-q27mcpCIb9AdkzBYIKH6EYDPZ0gChHAFXd9v0juq6yFPFoHLdFOm76Wt46LhLyM-R7bb20czVPOvMWokQFfmjPFyUSapVtJCD5Zf9VflVB_ZtyQaUfglwxyLXDiEqj6_9W7WYBj6GzoH0wcBWZA7jsJE5tf9Im4pe4"
               />
             </Link>
-            <span className="text-[11px] font-black text-[#2e3440] truncate max-w-[100px] font-headline uppercase tracking-tight">Alex Rivers</span>
+            <span className="text-[13px] font-bold text-[#2e3440] truncate max-w-[100px] font-headline uppercase tracking-wider">Alex Rivers</span>
           </div>
-          
+
           <div className="flex items-center gap-1.5">
             <div className="w-[1px] h-4 bg-blue-100"></div>
-            <button className="text-[#2e3440] hover:text-[#5e81ac] transition-all active:scale-90 p-1">
-              <span className="material-symbols-outlined text-[1.2rem] font-bold">notifications</span>
+            <button className="text-[#2e3440] hover:text-[#5e81ac] transition-all active:scale-95 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[1.1rem] font-bold scale-[0.7] origin-center translate-y-[0.5px]">notifications</span>
             </button>
           </div>
         </div>
 
         {/* Sign Out Button - Padded */}
         <div className="px-1">
-          <Link to="/" className="w-full flex items-center justify-center gap-2 py-3 bg-[#2e3440] text-white hover:bg-[#3b4252] rounded-xl transition-all font-headline font-black text-[10px] uppercase tracking-[0.15em] active:scale-[0.98]">
+          <Link to="/" className="w-full flex items-center justify-center gap-2 py-3 bg-[#2e3440] text-white hover:bg-[#3b4252] rounded-xl transition-all font-body font-bold text-[11.5px] uppercase tracking-[0.2em] active:scale-[0.98]">
             <span className="material-symbols-outlined text-[1rem]">logout</span>
             Sign Out
           </Link>

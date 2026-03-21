@@ -10,6 +10,8 @@ import { LearningInterfacePage } from './pages/LearningInterfacePage';
 import { CourseQuizPage } from './pages/CourseQuizPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { DonationPage } from './pages/DonationPage';
+import { MyCoursesPage } from './pages/MyCoursesPage';
+import { CourseOverviewPage } from './pages/CourseOverviewPage';
 
 // ── Wallet Manager ──────────────────────────────────────────────────
 const walletManager = new WalletManager({
@@ -102,6 +104,8 @@ function AppLayout() {
           <Routes>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/courses" element={<CourseCataloguePage />} />
+            <Route path="/courses/:courseId" element={<CourseOverviewPage />} />
+            <Route path="/my-courses" element={<MyCoursesPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Routes>
         </main>

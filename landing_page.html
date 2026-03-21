@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>FundMySkill | Elevate Your Mind</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed-variant": "#005312",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#dae2ff",
+                        "primary-container": "#0056d2",
+                        "on-tertiary-fixed-variant": "#004e59",
+                        "surface-tint": "#0056d2",
+                        "on-tertiary-fixed": "#001f25",
+                        "surface-container-low": "#f2f3fe",
+                        "surface": "#faf8ff",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "secondary": "#1b6d24",
+                        "surface-container-highest": "#e1e2ec",
+                        "background": "#faf8ff",
+                        "inverse-surface": "#2e3038",
+                        "secondary-container": "#a0f399",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#006876",
+                        "inverse-primary": "#b2c5ff",
+                        "error-container": "#ffdad6",
+                        "outline": "#737785",
+                        "on-tertiary-container": "#71e9ff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-high": "#e7e7f2",
+                        "surface-bright": "#faf8ff",
+                        "surface-dim": "#d9d9e4",
+                        "tertiary-fixed-dim": "#44d8f1",
+                        "tertiary": "#004e59",
+                        "secondary-fixed-dim": "#88d982",
+                        "on-primary-container": "#ccd8ff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-primary-fixed-variant": "#0040a1",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001847",
+                        "surface-variant": "#e1e2ec",
+                        "on-secondary-fixed": "#002204",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#191b23",
+                        "tertiary-fixed": "#a1efff",
+                        "primary": "#0040a1",
+                        "on-secondary-container": "#217128",
+                        "surface-container": "#ededf8",
+                        "secondary-fixed": "#a3f69c",
+                        "outline-variant": "#c3c6d6",
+                        "on-surface": "#191b23",
+                        "on-surface-variant": "#424654",
+                        "on-error": "#ffffff"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #faf8ff;
+            color: #191b23;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .glass-nav {
+            background-color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-background selection:bg-primary-fixed selection:text-on-primary-fixed">
+    <!-- TopNavBar -->
+    <nav
+        class="fixed top-0 w-full z-50 glass-nav h-16 flex items-center justify-between px-6 md:px-12 shadow-sm font-headline antialiased">
+        <div class="flex items-center gap-8">
+            <span class="text-xl font-bold tracking-tight text-slate-900">FundMySkill</span>
+            <div class="hidden md:flex items-center gap-6">
+                <a class="text-blue-700 font-semibold border-b-2 border-blue-700 transition-all duration-200"
+                    href="#">Home</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="#">Curriculum</a>
+                <a class="text-slate-500 hover:text-slate-900 transition-all duration-200" href="#">The Method</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="p-2 text-slate-500 hover:bg-slate-50 rounded-xl active:scale-95 transition-transform">
+                <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+            </button>
+            <button class="p-2 text-slate-500 hover:bg-slate-50 rounded-xl active:scale-95 transition-transform">
+                <span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+            </button>
+            <div class="h-8 w-8 rounded-full bg-primary-container overflow-hidden ml-2">
+                <img alt="User profile avatar" data-alt="Close up of a professional male user portrait"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTBlOBuCEf_BXukuc9cEXeR7mi1IpJMGVW9ajNCcmA0TQ-wPKSKhtL6y2pKLFp-0ILo0sD8PsgvL0XyoMhYUEgQIWoNti5sAEaIscmQBKboQdtKNnKzWYEKUg-4n-w32vRs41Q8CR3f3VxLUIuWj8fQYf36DFyzm8vVwVDRK_tN06UNOko6DE6AJJ3i-SI2XcyUHblLjbt5pjUFhq6Rx_arUZOoC313NUei9nGJSXQWzEl0k3z9otjJ0gvPI1dNdhb3c7LQ7EtaSk" />
+            </div>
+        </div>
+    </nav>
+    <main class="pt-16">
+        <!-- Hero Section -->
+        <section class="relative px-6 pt-24 pb-32 md:pt-40 md:pb-52 overflow-hidden">
+            <div
+                class="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary-fixed/30 via-transparent to-transparent">
+            </div>
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-8">
+                    <span
+                        class="inline-block px-4 py-1.5 rounded-full bg-tertiary text-on-tertiary text-xs font-bold tracking-widest uppercase">The
+                        Digital Curator</span>
+                    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-on-surface leading-[1.1]">
+                        Elevate Your Mind with <span
+                            class="bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">AI
+                            Precision</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-on-surface-variant max-w-2xl font-light leading-relaxed">
+                        Where pedagogical wisdom meets machine intelligence. Enter a curated sanctuary designed for deep
+                        cognitive mastery and academic rigor.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <button
+                            class="px-8 py-4 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full font-semibold text-lg shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                            Get Started
+                        </button>
+                        <button
+                            class="px-8 py-4 bg-surface-container-high text-on-primary-fixed-variant rounded-full font-semibold text-lg hover:bg-surface-container-highest transition-all">
+                            Explore the FundMySkill
+                        </button>
+                    </div>
+                </div>
+                <div class="lg:col-span-5 relative">
+                    <div
+                        class="aspect-square rounded-[2rem] bg-surface-container-low overflow-hidden shadow-2xl relative transform rotate-3">
+                        <img alt="Hero Image" class="w-full h-full object-cover grayscale-[20%] contrast-[1.1]"
+                            data-alt="Close up of classic library books with modern technology overlay"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0-QV9imDX2YoZh7-sF6JPkyl8gA2XtscH0OL88zVFwKafTQrX0vAO7rxjlImKR3F6tBkvrskV8KSOl511HS9xP_MTJUI_snrhCqsZ668aAEtlqqlps0h53CvYqztP5YIN7XVTsrPtKSwmtkUMbvTb4_9FeO4O_FjGQZPgm3KAJ8zSC6aYO7RzJNuqFb1dwN95RCejkC7O7EHQYb5ydmGz-xmK_p5XaZvQpC4KNmFO3dZaoyQNdJtAMolehy_mwkv2oniwnycwQAI" />
+                        <div class="absolute bottom-6 left-6 right-6 p-6 glass-nav rounded-2xl shadow-xl">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-on-secondary-container"
+                                        data-icon="auto_awesome">auto_awesome</span>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-tertiary uppercase tracking-wider">Deep Work Status
+                                    </p>
+                                    <p class="text-sm font-semibold text-on-surface">94% Cognitive Efficiency</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Features Bento Grid -->
+        <section class="py-24 px-6 bg-surface-container">
+            <div class="max-w-7xl mx-auto">
+                <div class="mb-16 text-center">
+                    <h2 class="text-3xl md:text-5xl font-extrabold text-on-surface mb-4">Architected for Focus</h2>
+                    <p class="text-on-surface-variant max-w-2xl mx-auto">Rejecting the noise of traditional platforms to
+                        create a pure environment for intellectual growth.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Feature 1 -->
+                    <div
+                        class="md:col-span-2 bg-surface-container-lowest p-8 rounded-[1.5rem] shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+                        <div class="flex flex-col h-full justify-between gap-12">
+                            <div>
+                                <span class="material-symbols-outlined text-4xl text-primary mb-6"
+                                    data-icon="route">route</span>
+                                <h3 class="text-2xl font-bold mb-4">Personalized Path</h3>
+                                <p class="text-on-surface-variant text-lg">Our AI maps your existing mental models to
+                                    create a curriculum that evolves with your understanding. No two journeys are
+                                    identical.</p>
+                            </div>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div class="h-2 rounded-full bg-secondary"></div>
+                                <div class="h-2 rounded-full bg-secondary-container"></div>
+                                <div class="h-2 rounded-full bg-surface-container-high"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Feature 2 -->
+                    <div
+                        class="bg-primary p-8 rounded-[1.5rem] text-on-primary shadow-lg flex flex-col justify-between">
+                        <div>
+                            <span class="material-symbols-outlined text-4xl mb-6"
+                                data-icon="self_improvement">self_improvement</span>
+                            <h3 class="text-2xl font-bold mb-4">Deep Work Tools</h3>
+                            <p class="text-primary-fixed/80">Distraction-free environments curated by the "Focus Shroud"
+                                to maximize your neuroplasticity during study.</p>
+                        </div>
+                        <div class="pt-8">
+                            <span class="text-sm font-medium tracking-widest uppercase opacity-60">Status: Active</span>
+                        </div>
+                    </div>
+                    <!-- Feature 3 -->
+                    <div
+                        class="bg-surface-container-lowest p-8 rounded-[1.5rem] shadow-sm border border-outline-variant/10 flex flex-col justify-between">
+                        <div>
+                            <span class="material-symbols-outlined text-4xl text-tertiary mb-6"
+                                data-icon="smart_toy">smart_toy</span>
+                            <h3 class="text-2xl font-bold mb-4">AI Tutor</h3>
+                            <p class="text-on-surface-variant">A 24/7 intellectual companion that challenges your
+                                assumptions rather than just providing answers.</p>
+                        </div>
+                    </div>
+                    <!-- Feature 4 -->
+                    <div
+                        class="md:col-span-2 bg-inverse-surface p-8 rounded-[1.5rem] text-surface-bright shadow-xl overflow-hidden relative group">
+                        <div class="relative z-10 flex flex-col md:flex-row gap-8 items-center">
+                            <div class="flex-1">
+                                <h3 class="text-3xl font-bold mb-4">FundMySkill Method</h3>
+                                <p class="text-surface-variant/80 text-lg mb-6">A fusion of Socratic questioning and
+                                    modern data analytics to ensure absolute mastery of complex subjects.</p>
+                                <button
+                                    class="text-secondary-fixed font-bold flex items-center gap-2 group-hover:gap-4 transition-all">
+                                    Learn our methodology <span class="material-symbols-outlined"
+                                        data-icon="arrow_forward">arrow_forward</span>
+                                </button>
+                            </div>
+                            <div class="w-full md:w-1/2 h-48 bg-white/5 rounded-2xl flex items-center justify-center">
+                                <span class="material-symbols-outlined text-8xl opacity-10"
+                                    data-icon="architecture">architecture</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- How it Works -->
+        <section class="py-32 px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex flex-col md:flex-row gap-16 items-start">
+                    <div class="md:w-1/3 md:sticky md:top-32">
+                        <h2 class="text-4xl font-extrabold text-on-surface leading-tight">The Journey to Mastery</h2>
+                        <p class="mt-4 text-on-surface-variant">A four-stage transformation designed for serious
+                            scholars and lifelong learners.</p>
+                    </div>
+                    <div class="md:w-2/3 space-y-24">
+                        <!-- Step 1 -->
+                        <div class="relative pl-12">
+                            <div
+                                class="absolute left-0 top-0 text-6xl font-black text-surface-container-highest select-none">
+                                01</div>
+                            <h3 class="text-2xl font-bold text-on-surface mb-4">Cognitive Enrollment</h3>
+                            <p class="text-on-surface-variant text-lg">We begin with a comprehensive analysis of your
+                                learning style, goals, and existing knowledge base to baseline your potential.</p>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="relative pl-12">
+                            <div
+                                class="absolute left-0 top-0 text-6xl font-black text-surface-container-highest select-none">
+                                02</div>
+                            <h3 class="text-2xl font-bold text-on-surface mb-4">Guided Exploration</h3>
+                            <p class="text-on-surface-variant text-lg">The AI Tutor presents curated modules that
+                                challenge your boundary of knowledge, utilizing the FundMySkill's proprietary layered
+                                interface.</p>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="relative pl-12">
+                            <div
+                                class="absolute left-0 top-0 text-6xl font-black text-surface-container-highest select-none">
+                                03</div>
+                            <h3 class="text-2xl font-bold text-on-surface mb-4">Deep Integration</h3>
+                            <p class="text-on-surface-variant text-lg">Utilizing spaced-repetition and dialectical
+                                exercises, concepts are moved from short-term memory to deep intuitive understanding.
+                            </p>
+                        </div>
+                        <!-- Step 4 -->
+                        <div class="relative pl-12">
+                            <div
+                                class="absolute left-0 top-0 text-6xl font-black text-surface-container-highest select-none">
+                                04</div>
+                            <h3 class="text-2xl font-bold text-on-surface mb-4">Cognitive Mastery</h3>
+                            <p class="text-on-surface-variant text-lg">Achieve a state of effortless flow within your
+                                subject matter, verified by our rigorous pedagogical metrics.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Voices of the FundMySkill (Testimonials) -->
+        <section class="py-24 px-6 bg-surface-container-low overflow-hidden">
+            <div class="max-w-7xl mx-auto relative">
+                <div class="absolute -top-12 -left-12">
+                    <span class="material-symbols-outlined text-9xl text-primary/5 select-none"
+                        data-icon="format_quote">format_quote</span>
+                </div>
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-extrabold">Voices of the FundMySkill</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Quote 1 -->
+                    <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm italic relative">
+                        <p class="text-on-surface mb-8 text-lg">"FundMySkill has transformed how I approach my research.
+                            The AI doesn't just give answers; it forces me to think more clearly."</p>
+                        <div class="flex items-center gap-4 not-italic">
+                            <div class="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
+                                <img alt="Professor portrait"
+                                    data-alt="Close up of an elderly academic professor smiling"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn8gC4-bPnduGXmU_SNsjVBKlbvK5OA4t5_5CxisAEFECMZO7Z9QQWdHOonjv8jYQGs7nVJnY6Kno7fhWJp0ukRxlnm1lnQmAaJRQ3lG-BEUFI-NdwK7LK0eOCk1eNeGnF3qImK36UqaEBkYMJrmA8k4-4Y778D5Oa7YBoG64OCZGCGEXlEkPdO5STJJc5F2BJ1Jo5kdbnkJFt9M60FRx0nsDwSg5UQQ0kjgVWs-TRGcpR1eVBsWbedZMH1mcMZyK1-qqYqkssgWU" />
+                            </div>
+                            <div>
+                                <p class="font-bold text-on-surface">Dr. Aris Thorne</p>
+                                <p class="text-sm text-on-surface-variant">Professor of Philosophy</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quote 2 -->
+                    <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm italic">
+                        <p class="text-on-surface mb-8 text-lg">"Finally, a learning platform that respects the
+                            student's intellect. The focus on 'deep work' is a game-changer in this age of distraction."
+                        </p>
+                        <div class="flex items-center gap-4 not-italic">
+                            <div class="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
+                                <img alt="Scholar portrait"
+                                    data-alt="Portrait of a female scholar in professional attire"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMUzVf7AnD2PyEUJbaqWquGi4drbmIDXxzG-1sch-p9tcCWoZs59IZhpkzmkDI1g2DM5c8bwc9s344zRp_W5yb9qPmQ73z49xNyWqrM9F5xTHCWvhsJLPyhywJQTqsQ8OorL10DZvFfjX4i2Cnqj7azFZiGM1bs54z9y67RkHA1SJwN1T43E6m17bIijbetD4LvqW2TT3wAyquKyPbP2LlzIfiEnhz_YTehrsfXJY5ufO8gUbc0nUwMIZ3m5bpwys9Y7thxO5BWD0" />
+                            </div>
+                            <div>
+                                <p class="font-bold text-on-surface">Elena Vance</p>
+                                <p class="text-sm text-on-surface-variant">Lead AI Researcher</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Quote 3 -->
+                    <div class="bg-surface-container-lowest p-8 rounded-2xl shadow-sm italic">
+                        <p class="text-on-surface mb-8 text-lg">"The curation is exceptional. It feels less like an app
+                            and more like a private library where the books speak back to you."</p>
+                        <div class="flex items-center gap-4 not-italic">
+                            <div class="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
+                                <img alt="Student portrait" data-alt="Portrait of a young ambitious male student"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhbzRJ8gMNJ8vN8Ky_74g8uqfRVAccui8qt4VXnFaFEYYYvZgrLHLJTnA2X47xCVlawg9Fc1iGc-8rHbsxY6OildY1NwyVkzAubVbb8Ho9CBbtQ0iG2mLfp0vDJ8Xhaw6fAPRjBQaYvZiSifoJCVfX_IPWK_rJCS6LDy-U_nfPeCbGFv_lBpE0ja3qsSQNUObtqiR2T48q4zVrzCEKKQNofxGOrseDlqhJUGwCW0udEgmDI4XoucYIt5VN7g6asPcQT01Af_OtMyU" />
+                            </div>
+                            <div>
+                                <p class="font-bold text-on-surface">Julian Grant</p>
+                                <p class="text-sm text-on-surface-variant">Post-Grad Fellow</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- CTA Section -->
+        <section class="py-24 px-6">
+            <div
+                class="max-w-4xl mx-auto bg-gradient-to-br from-primary to-primary-container rounded-[2.5rem] p-12 md:p-20 text-center text-on-primary shadow-2xl relative overflow-hidden">
+                <div class="absolute inset-0 opacity-10 pointer-events-none">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -mr-32 -mt-32"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -ml-32 -mb-32"></div>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-8">Ready to Transcribe Your Potential?</h2>
+                <p class="text-primary-fixed/90 text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+                    We accept a limited number of scholars into each cohort to maintain the highest quality of AI-human
+                    interaction.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                    <button
+                        class="px-10 py-5 bg-white text-primary rounded-full font-bold text-lg hover:bg-primary-fixed transition-colors active:scale-95 transform">
+                        Apply for an Invitation
+                    </button>
+                    <a class="text-on-primary font-semibold flex items-center gap-2 hover:underline" href="#">
+                        View Enrollment Criteria
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="bg-surface-container-lowest pt-20 pb-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-1 md:col-span-1">
+                    <span class="text-xl font-bold tracking-tight text-slate-900 block mb-6">FundMySkill</span>
+                    <p class="text-on-surface-variant text-sm leading-relaxed">
+                        Redefining education through the union of humanistic pedagogy and advanced artificial
+                        intelligence.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-on-surface mb-6 uppercase tracking-widest text-xs">FundMySkill</h4>
+                    <ul class="space-y-4 text-sm text-on-surface-variant">
+                        <li><a class="hover:text-primary transition-colors" href="#">The Method</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Faculty</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Research Labs</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-on-surface mb-6 uppercase tracking-widest text-xs">Resources</h4>
+                    <ul class="space-y-4 text-sm text-on-surface-variant">
+                        <li><a class="hover:text-primary transition-colors" href="#">Methodology</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Scholar Portal</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Library Access</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-on-surface mb-6 uppercase tracking-widest text-xs">Legal</h4>
+                    <ul class="space-y-4 text-sm text-on-surface-variant">
+                        <li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Institutional Terms</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Honor Code</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                class="pt-8 border-t border-outline-variant/20 flex flex-col md:flex-row justify-between items-center gap-6">
+                <p class="text-xs text-on-surface-variant opacity-60">© 2024 FundMySkill. All Intellectual Rights
+                    Reserved.</p>
+                <div class="flex gap-6">
+                    <span
+                        class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors"
+                        data-icon="terminal">terminal</span>
+                    <span
+                        class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors"
+                        data-icon="book_2">book_2</span>
+                    <span
+                        class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors"
+                        data-icon="hub">hub</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
