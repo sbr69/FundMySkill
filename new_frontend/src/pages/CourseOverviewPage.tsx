@@ -1,9 +1,91 @@
-import { useParams, Link } from 'react-router-dom';
-import { courses, StarRating } from './CourseCataloguePage';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useCourse, useEnroll } from '../hooks/useApi';
+import { StarRating } from './CourseCataloguePage';
+
+interface Lecture {
+  id: string;
+  title: string;
+  duration: string;
+  order_index: number;
+}
+
+interface Module {
+  id: string;
+  title: string;
+  description: string;
+  order_index: number;
+  total_duration: string;
+  lecture_count: number;
+  lectures: Lecture[];
+}
 
 export function CourseOverviewPage() {
   const { courseId } = useParams();
-  const course = courses.find((c) => c.id === courseId) || courses[1]; // Fallback to generative urban design
+  const navigate = useNavigate();
+  const [enrollError, setEnrollError] = useState<string | null>(null);
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+
+  // Fetch course from API
+  const { data: course, loading } = useCourse(courseId || '');
+  const { enroll, enrolling } = useEnroll();
+
+  const handleEnroll = async () => {
+    if (!courseId) return;
+    setEnrollError(null);
+    try {
+      await enroll(courseId);
+      navigate('/my-courses');
+    } catch (err) {
+      setEnrollError(err instanceof Error ? err.message : 'Failed to enroll');
+    }
+  };
+
+  const toggleModule = (moduleId: string) => {
+    setExpandedModules(prev => {
+      const next = new Set(prev);
+      if (next.has(moduleId)) {
+        next.delete(moduleId);
+      } else {
+        next.add(moduleId);
+      }
+      return next;
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 pt-12">
+        <div className="animate-pulse space-y-8">
+          <div className="h-8 bg-surface-container-high rounded w-1/4"></div>
+          <div className="h-16 bg-surface-container-high rounded w-3/4"></div>
+          <div className="h-6 bg-surface-container-high rounded w-1/2"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 pt-12">
+        <div className="text-center py-20">
+          <span className="material-symbols-outlined text-6xl text-on-surface-variant/30 mb-4">error</span>
+          <h3 className="text-xl font-bold text-on-surface mb-2">Course not found</h3>
+          <Link to="/courses" className="text-primary hover:underline">Back to catalogue</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const title = course.title;
+  const description = course.description;
+  const instructor = course.instructor;
+  const institution = course.institution;
+  const instructorImage = course.instructor_image || `https://i.pravatar.cc/150?u=${courseId}`;
+  const stars = course.stars || [1, 1, 1, 1, 0.5];
+  const rating = course.rating || 4.5;
+  const ratingCount = course.rating_count || '0';
+  const modules: Module[] = course.modules || [];
 
   return (
     <div className="max-w-6xl mx-auto px-6 pt-12">
@@ -20,243 +102,258 @@ export function CourseOverviewPage() {
         <div className="lg:col-span-8 space-y-12 pb-12">
           {/* Hero Content */}
           <section>
+            <div className="flex gap-2 mb-4">
+              <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider rounded-lg">
+                {course.category}
+              </span>
+              <span className="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-wider rounded-lg">
+                {course.level}
+              </span>
+            </div>
             <h1 className="text-5xl font-extrabold text-on-surface leading-[1.1] mb-8 tracking-tighter font-headline">
-              {course.title.includes(':') ? (
-                course.title.split(':').map((part, i) => (
-                  <span key={i} className={i === 1 ? 'block text-primary italic' : 'block'}>
-                    {part.trim()}
-                    {i === 0 && ' :'}
-                  </span>
-                ))
-              ) : (
-                course.title
-              )}
+              {title}
             </h1>
             <p className="text-xl text-on-surface-variant leading-relaxed opacity-90 max-w-2xl">
-              {course.description} Bridging the gap between theory and high-impact deployment in modern industry.
+              {description}
             </p>
 
             <div className="flex items-center gap-6 mt-6">
               <div className="flex items-center gap-3">
-                <img src={course.instructorImage} className="w-12 h-12 rounded-full border-2 border-white shadow-md shadow-black/5" alt={course.instructor} />
+                <img
+                  src={instructorImage}
+                  className="w-12 h-12 rounded-full border-2 border-white shadow-md shadow-black/5"
+                  alt={instructor}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://i.pravatar.cc/150?u=${courseId}`;
+                  }}
+                />
                 <div>
-                  <p className="text-sm font-bold text-on-surface leading-none mb-1">{course.instructor}</p>
-                  <p className="text-[10px] font-medium text-on-surface-variant uppercase tracking-wider">{course.institution}</p>
+                  <p className="text-sm font-bold text-on-surface leading-none mb-1">{instructor}</p>
+                  <p className="text-[10px] font-medium text-on-surface-variant uppercase tracking-wider">{institution}</p>
                 </div>
               </div>
               <div className="h-10 w-[1px] bg-outline-variant/20"></div>
               <div className="flex items-center gap-2 drop-shadow-sm">
-                <StarRating stars={course.stars} />
-                <span className="text-xs font-black text-on-surface/70">{course.rating}</span>
-                <span className="text-[10px] font-bold text-on-surface-variant opacity-60">({course.ratingCount} Reviews)</span>
+                <StarRating stars={stars} />
+                <span className="text-xs font-black text-on-surface/70">{rating}</span>
+                <span className="text-[10px] font-bold text-on-surface-variant opacity-60">({ratingCount} Reviews)</span>
               </div>
             </div>
           </section>
+
+          {/* What You'll Learn */}
+          {course.what_you_will_learn && course.what_you_will_learn.length > 0 && (
+            <section>
+              <h2 className="text-2xl font-extrabold tracking-tight mb-4 font-headline">What You'll Learn</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {course.what_you_will_learn.map((item: string, i: number) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-primary text-lg mt-0.5">check_circle</span>
+                    <span className="text-sm text-on-surface-variant">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Curriculum Section */}
           <section>
-            <div className="flex items-end justify-between mb-3 pb-1 border-b border-outline-variant/10">
+            <div className="flex items-end justify-between mb-4 pb-1 border-b border-outline-variant/10">
               <div>
                 <h2 className="text-3xl font-extrabold tracking-tight mb-1 font-headline">Curriculum</h2>
-                <p className="text-sm text-on-surface-variant opacity-70">A rigorous deep dive into the future of {course.title.split(':')[0]}.</p>
+                <p className="text-sm text-on-surface-variant opacity-70">
+                  {course.module_count || modules.length} modules • {course.lecture_count || 0} lectures
+                </p>
               </div>
+              <button
+                onClick={() => setExpandedModules(expandedModules.size === modules.length ? new Set() : new Set(modules.map(m => m.id)))}
+                className="text-[11px] font-bold text-primary uppercase tracking-wider hover:underline"
+              >
+                {expandedModules.size === modules.length ? 'Collapse All' : 'Expand All'}
+              </button>
             </div>
 
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map((week) => (
-                <div key={week} className="bg-surface-container-lowest border border-outline-variant/5 hover:border-primary/20 rounded-3xl p-6 transition-all group">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-start gap-6">
-                      <span className="text-3xl font-black text-outline-variant/30 group-hover:text-primary/30 transition-colors font-headline">0{week}</span>
-                      <div>
-                        <h4 className="text-lg font-bold text-on-surface mb-1 font-headline">Module 0{week}: {week === 1 ? 'Foundations & Parametric Logic' : week === 2 ? 'Data & Environmental Mapping' : week === 3 ? 'Algorithmic Optimization' : 'Thesis Synthesis'}</h4>
-                        <p className="text-xs text-on-surface-variant/70 line-clamp-1">Master the core frameworks and procedural logic required for high-level {week === 1 ? 'spatial layout' : 'industry deployment'}.</p>
+            <div className="space-y-3">
+              {modules.map((mod, index) => {
+                const isExpanded = expandedModules.has(mod.id);
+                const lectures = mod.lectures || [];
+
+                return (
+                  <div
+                    key={mod.id}
+                    className="bg-surface-container-lowest border border-outline-variant/5 rounded-2xl overflow-hidden transition-all"
+                  >
+                    {/* Module Header */}
+                    <button
+                      onClick={() => toggleModule(mod.id)}
+                      className="w-full p-5 flex items-center justify-between hover:bg-surface-container-low/50 transition-colors"
+                    >
+                      <div className="flex items-start gap-5 text-left">
+                        <span className="text-2xl font-black text-outline-variant/40 font-headline">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        <div>
+                          <h4 className="text-lg font-bold text-on-surface mb-1 font-headline">{mod.title}</h4>
+                          <p className="text-xs text-on-surface-variant/70">{mod.description}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-surface-container rounded-full text-[9px] font-black text-on-surface uppercase tracking-widest opacity-60">12 Lessons</span>
-                      <span className="material-symbols-outlined text-on-surface-variant/40 group-hover:text-primary transition-colors">expand_more</span>
-                    </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                            {lectures.length} Lessons
+                          </p>
+                          <p className="text-[10px] text-on-surface-variant/60">{mod.total_duration}</p>
+                        </div>
+                        <span
+                          className={`material-symbols-outlined text-on-surface-variant/40 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                        >
+                          expand_more
+                        </span>
+                      </div>
+                    </button>
+
+                    {/* Lectures List */}
+                    {isExpanded && lectures.length > 0 && (
+                      <div className="border-t border-outline-variant/10 bg-surface-container-low/30">
+                        {lectures.map((lecture, lectureIndex) => (
+                          <div
+                            key={lecture.id}
+                            className="flex items-center gap-4 px-5 py-3 border-b border-outline-variant/5 last:border-b-0 hover:bg-surface-container-low/50 transition-colors"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
+                              <span className="material-symbols-outlined text-on-surface-variant/60 text-sm">
+                                play_circle
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-on-surface truncate">
+                                {lectureIndex + 1}. {lecture.title}
+                              </p>
+                            </div>
+                            <span className="text-[11px] font-bold text-on-surface-variant/60 uppercase">
+                              {lecture.duration}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
-          {/* Assignments Section */}
-          <section>
-            <div className="flex items-end justify-between mb-3 pb-1 border-b border-outline-variant/10">
-              <div>
-                <h2 className="text-3xl font-extrabold tracking-tight mb-1 font-headline">Assignments & Assessments</h2>
-                <p className="text-sm text-on-surface-variant opacity-70">Evaluate your understanding through structured tasks.</p>
-              </div>
-            </div>
+          {/* Requirements */}
+          {course.requirements && course.requirements.length > 0 && (
+            <section>
+              <h2 className="text-2xl font-extrabold tracking-tight mb-4 font-headline">Requirements</h2>
+              <ul className="space-y-2">
+                {course.requirements.map((req: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-on-surface-variant/50 text-lg mt-0.5">arrow_right</span>
+                    <span className="text-sm text-on-surface-variant">{req}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
-            {/* Assessment Stats Overview */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              {[
-                { label: 'Total Quizzes', value: '12', icon: 'quiz' },
-                { label: 'Module Tests', value: '04', icon: 'assignment' },
-                { label: 'Evaluations', value: 'Monthly', icon: 'frame_inspect' },
-                { label: 'Timeline', value: 'Weekly', icon: 'event_repeat' }
-              ].map(stat => (
-                <div key={stat.label} className="bg-surface-container-lowest border border-outline-variant/10 rounded-2xl p-4 flex flex-col items-center text-center gap-1 shadow-sm">
-                  <span className="material-symbols-outlined text-primary/60 text-lg mb-1">{stat.icon}</span>
-                  <p className="text-lg font-black text-on-surface font-headline leading-none">{stat.value}</p>
-                  <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-2xl p-6 flex items-center justify-between hover:border-primary/30 transition-colors cursor-pointer group">
-                <div className="flex items-center gap-5">
-                  <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:text-primary">
-                    <span className="material-symbols-outlined">quiz</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-on-surface text-sm">On-Demand Assessments</h4>
-                    <p className="text-xs text-on-surface-variant/70">Take quizzes anytime to test your knowledge.</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-outline-variant/40 group-hover:text-primary transition-colors">chevron_right</span>
-              </div>
-              <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-2xl p-6 flex items-center justify-between hover:border-primary/30 transition-colors cursor-pointer group">
-                <div className="flex items-center gap-5">
-                  <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:text-primary">
-                    <span className="material-symbols-outlined">assignment_turned_in</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-on-surface text-sm">Fixed Schedule Assignments</h4>
-                    <p className="text-xs text-on-surface-variant/70">Deadlines aligned with weekly progress.</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-outline-variant/40 group-hover:text-primary transition-colors">chevron_right</span>
-              </div>
-              <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-2xl p-6 flex items-center justify-between hover:border-primary/30 transition-colors cursor-pointer group">
-                <div className="flex items-center gap-5">
-                  <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:text-primary">
-                    <span className="material-symbols-outlined">calendar_month</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-on-surface text-sm">Weekly & Monthly Assessments</h4>
-                    <p className="text-xs text-on-surface-variant/70">Periodic evaluations for concept mastery.</p>
-                  </div>
-                </div>
-                <span className="material-symbols-outlined text-outline-variant/40 group-hover:text-primary transition-colors">chevron_right</span>
-              </div>
-            </div>
-          </section>
-
-          {/* Certification Criteria Section */}
-          <section>
-            <div className="flex items-end justify-between mb-3 pb-1 border-b border-outline-variant/10">
-              <div>
-                <h2 className="text-3xl font-extrabold tracking-tight mb-1 font-headline">Certification Criteria</h2>
-                <p className="text-sm text-on-surface-variant opacity-70">Minimum requirements to earn your professional certificate.</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-2xl p-6 flex flex-col items-center text-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-secondary/10 text-secondary flex items-center justify-center">
-                  <span className="material-symbols-outlined">fact_check</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface text-sm mb-1">Module Progress</h4>
-                  <p className="text-[10px] font-black uppercase text-primary tracking-widest leading-none mb-2">100% Completion</p>
-                  <p className="text-[10px] text-on-surface-variant/70 font-medium">All sub-modules and lessons must be finished.</p>
-                </div>
-              </div>
-              <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-2xl p-6 flex flex-col items-center text-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-tertiary/10 text-tertiary flex items-center justify-center">
-                  <span className="material-symbols-outlined">leaderboard</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface text-sm mb-1">Aggregate Score</h4>
-                  <p className="text-[10px] font-black uppercase text-secondary tracking-widest leading-none mb-2">70% Minimum</p>
-                  <p className="text-[10px] text-on-surface-variant/70 font-medium">Average across all weekly and monthly assessments.</p>
-                </div>
-              </div>
-              <div className="bg-surface-container-lowest border border-outline-variant/10 rounded-2xl p-6 flex flex-col items-center text-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                  <span className="material-symbols-outlined">rule</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-on-surface text-sm mb-1">Test Completion</h4>
-                  <p className="text-[10px] font-black uppercase text-tertiary tracking-widest leading-none mb-2">3/4 Attempted</p>
-                  <p className="text-[10px] text-on-surface-variant/70 font-medium">Must attempt at least 3 out of 4 major module tests.</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Instructor & Social Proof */}
+          {/* Instructor Section */}
           <section className="bg-on-surface rounded-[2.5rem] p-10 md:p-14 flex flex-col md:flex-row items-center gap-12 text-surface overflow-hidden relative shadow-2xl">
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,_rgba(var(--primary-rgb),0.15),transparent_60%)] pointer-events-none opacity-50"></div>
             <div className="w-56 shrink-0 aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl relative z-10 border border-white/10">
-              <img src={course.instructorImage} className="w-full h-full object-cover" alt={course.instructor} />
+              <img
+                src={instructorImage}
+                className="w-full h-full object-cover"
+                alt={instructor}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://i.pravatar.cc/150?u=${courseId}`;
+                }}
+              />
             </div>
             <div className="relative z-10">
-              <h3 className="text-4xl font-extrabold mb-3 tracking-tighter font-headline">Meet your lead.</h3>
-              <p className="text-primary-fixed-dim text-lg font-bold mb-6 uppercase tracking-widest font-headline">{course.instructor}</p>
-              <p className="text-surface/70 text-base leading-relaxed mb-8">
-                Pioneer in the "Responsive Systems" theory. With over 15 years of experience at the intersection of complex logic and practical deployment architectures.
+              <h3 className="text-4xl font-extrabold mb-3 tracking-tighter font-headline">Meet your instructor</h3>
+              <p className="text-primary-fixed-dim text-lg font-bold mb-4 uppercase tracking-widest font-headline">{instructor}</p>
+              <p className="text-surface/70 text-base leading-relaxed mb-6">
+                {institution}. Expert in {course.category} with years of experience teaching and building real-world projects.
               </p>
-              <div className="flex flex-wrap gap-3">
-                {['PhD Mathematics', 'AIA Award Winner', 'TED Global Speaker'].map(badge => (
-                  <span key={badge} className="px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10">{badge}</span>
-                ))}
-              </div>
+              {course.tags && course.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {course.tags.slice(0, 4).map((tag: string) => (
+                    <span key={tag} className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         </div>
 
+        {/* Sidebar */}
         <aside className="lg:col-span-4">
-          <div className="lg:fixed lg:top-1/2 lg:-translate-y-1/2 lg:w-[300px] xl:w-[325px] pl-12 lg:pl-16 border-l border-outline-variant/20 z-20">
+          <div className="lg:sticky lg:top-8 pl-0 lg:pl-8 border-l-0 lg:border-l border-outline-variant/20">
             <div className="flex flex-col gap-8 w-full">
+              {/* Course Preview */}
+              {course.thumbnail_url && (
+                <div className="rounded-2xl overflow-hidden shadow-lg">
+                  <img
+                    src={course.thumbnail_url}
+                    alt={title}
+                    className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800';
+                    }}
+                  />
+                </div>
+              )}
+
               {/* Course Stats */}
               <div className="space-y-4 pb-6 border-b border-outline-variant/10">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-60 font-headline">Course Stats</h4>
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-60 font-headline">Course Details</h4>
                 <div className="flex justify-between items-center text-[13px]">
-                  <span className="text-on-surface-variant font-medium">Duration</span>
-                  <span className="font-black text-on-surface">8 Weeks</span>
+                  <span className="text-on-surface-variant font-medium flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">schedule</span> Duration
+                  </span>
+                  <span className="font-black text-on-surface">{course.duration_string || '8 Weeks'}</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px]">
-                  <span className="text-on-surface-variant font-medium">Level</span>
-                  <span className="font-black text-on-surface">{course.badge?.replace('Level: ', '') || 'Professional'}</span>
+                  <span className="text-on-surface-variant font-medium flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">signal_cellular_alt</span> Level
+                  </span>
+                  <span className="font-black text-on-surface">{course.level || 'Intermediate'}</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px]">
-                  <span className="text-on-surface-variant font-medium">Category</span>
-                  <span className="font-black text-on-surface">Computer Science</span>
+                  <span className="text-on-surface-variant font-medium flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">play_lesson</span> Lectures
+                  </span>
+                  <span className="font-black text-on-surface">{course.lecture_count || 0}</span>
+                </div>
+                <div className="flex justify-between items-center text-[13px]">
+                  <span className="text-on-surface-variant font-medium flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">group</span> Students
+                  </span>
+                  <span className="font-black text-on-surface">{course.enrollment_count?.toLocaleString() || 0}</span>
                 </div>
               </div>
 
-              {/* Library & Resources */}
-              <div className="space-y-4 pb-6 border-b border-outline-variant/10">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-60 font-headline">Library & Resources</h4>
-                {[
-                  { label: 'Short Notes', count: '12 Files' },
-                  { label: 'Mind Maps', count: '04 Maps' },
-                  { label: 'Templates', count: '08 Packs' }
-                ].map(res => (
-                  <div key={res.label} className="flex justify-between items-center text-[13px]">
-                    <span className="text-on-surface-variant font-medium">{res.label}</span>
-                    <span className="font-black text-on-surface">{res.count}</span>
+              <div className="space-y-4">
+                {enrollError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                    {enrollError}
                   </div>
-                ))}
-              </div>
-
-              <div className="space-y-6">
-                <button className="w-full py-5 bg-primary text-on-primary rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                  Enroll Now
+                )}
+                <button
+                  onClick={handleEnroll}
+                  disabled={enrolling}
+                  className="w-full py-4 bg-primary text-on-primary rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                >
+                  {enrolling ? 'Enrolling...' : 'Enroll Now'}
                 </button>
 
-                <div className="pt-2 px-1">
-                  <p className="text-[11px] leading-relaxed text-on-surface-variant font-bold">
-                    <span className="font-black text-primary uppercase mr-1">Note:</span>
-                    Active course participation is authorized for a 12-month duration. Please be advised that all modules and assessments must be finalized within the prescribed schedule to maintain certification eligibility. Core study materials remain accessible indefinitely.
-                  </p>
-                </div>
+                <p className="text-[11px] leading-relaxed text-on-surface-variant text-center">
+                  100% Free • Full lifetime access • Certificate of completion
+                </p>
               </div>
             </div>
           </div>
